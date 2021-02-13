@@ -873,7 +873,7 @@ a:link, a:visited, a:hover, a:active {
 				shaderProgramQuad = initShaderProgramQuad();
 				
 				// let user start the demo
-				let dom = document.getElementById('btn');
+				let dom = shaderProgramQuad ? document.getElementById('btn') : null;
 				if (dom) {
 					dom.value = 'Start Demo!';
 					dom.disabled = false;
@@ -949,6 +949,9 @@ a:link, a:visited, a:hover, a:active {
 			var isWebGL2 = !!gl;
 			if(!isWebGL2) {
 				document.getElementById('info').innerHTML = 'WebGL 2 is not available.  See <a href="https://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">How to get a WebGL 2 implementation</a>';
+				let button = document.getElementById('btn');
+				button.value = 'Need WebGL 2 🥺';
+				button.disabled = true;
 				return;
 			}
 			
@@ -1301,6 +1304,7 @@ a:link, a:visited, a:hover, a:active {
     </script>
 	
 	<div id="starter_menu">
+			<div id="info"></div>
 			<br />
 			<input id="btn" type="button" value="Loading..." disabled onclick="start()"/>
 			<br />
