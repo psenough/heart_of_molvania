@@ -92,36 +92,14 @@ a:link, a:visited, a:hover, a:active {
 </head>
 
 <body>
-    <script id="vs" type="x-shader/x-vertex">
-        #version 300 es
-        #define POSITION_LOCATION 0
-        #define TEXCOORD_LOCATION 4
-
-        precision highp float;
-        precision highp int;
-
-        uniform mat4 MVP;
-
-        layout(location = POSITION_LOCATION) in vec2 position;
-        layout(location = TEXCOORD_LOCATION) in vec2 texcoord;
-
-        out vec2 v_st;
-
-        void main() {
-            v_st = texcoord;
-            gl_Position = MVP * vec4(position, 0.0, 1.0);
-        }
-    </script>
-
     <script src="utility.js"></script>
-    <script src="utility2.js"></script>
 
     <script>
   
 		// debug vars
- 		let sync_stuff = false;
- 		let skip = false;
-		let skip_timer = 0;
+ 		var sync_stuff = false;
+ 		var skip = false;
+		var skip_timer = 0;
 		
 		var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
 		//var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
@@ -130,9 +108,9 @@ a:link, a:visited, a:hover, a:active {
 		//var is_opera = navigator.userAgent.indexOf("Presto") > -1;
 		if ((is_chrome)&&(is_safari)) {is_safari=false;}
 
-		let init_time = 0;
-		let loop = undefined;
-		let showing_bullgif = false;
+		var init_time = 0;
+		var loop = undefined;
+		var showing_bullgif = false;
 
 		var textures = [];
 		var shaders = [];
@@ -146,8 +124,8 @@ a:link, a:visited, a:hover, a:active {
 				// init program
 				shaderProgramQuad = initShaderProgramQuad(shaders[0]);
 				
-				// let user start the demo
-				let button = shaderProgramQuad ? document.getElementById('btn') : null;
+				// var user start the demo
+				var button = shaderProgramQuad ? document.getElementById('btn') : null;
 				if (button) {
 					button.value = 'Start Demo!';
 					button.disabled = false;
@@ -157,8 +135,6 @@ a:link, a:visited, a:hover, a:active {
 
 		document.body.onload = function() {
 			//textures[0] = loadImage('gfx/metal_ox.png', function(ti){ console.log(ti); checkLoad(); });
-			//textures[1] = loadImage('gfx/tpolm_2d_array_test.png', function(ti){ console.log(ti); checkLoad(); });
-			//textures[2] = loadImage('gfx/pancake_1.png', function(ti){ console.log(ti); checkLoad(); });
 			shaders[0] = loadShader('frag.glsl', function(src){ shaders[0]=src; checkLoad(); });
 		}
 				
@@ -166,7 +142,7 @@ a:link, a:visited, a:hover, a:active {
 		
 			initAudio( function(){
 
-						let dom = document.getElementById('starter_menu');
+						var dom = document.getElementById('starter_menu');
 						if (dom) {
 							dom.style.display = "none";
 						}
@@ -178,7 +154,7 @@ a:link, a:visited, a:hover, a:active {
 					});
 		}
 
-		let playtime = 2*60*1000+13724;
+		var playtime = 2*60*1000+13724;
 
 		window.onresize = resize;
 
@@ -190,12 +166,12 @@ a:link, a:visited, a:hover, a:active {
 			if (gl!= undefined) gl.viewport(0, 0, w, h);
 		}
 		
-		let program = undefined;
-		let gl = undefined;
-		let layerLocation = undefined;
-		let timerLocation = undefined;
-		let deltatimerLocation = undefined;
-		let resolutionLocation = undefined;
+		var program = undefined;
+		var gl = undefined;
+		var layerLocation = undefined;
+		var timerLocation = undefined;
+		var deltatimerLocation = undefined;
+		var resolutionLocation = undefined;
 		
 		// https://www.peko-step.com/en/tool/combine-images.html
 		var NUM_IMAGES_0 = 6;
@@ -217,12 +193,22 @@ a:link, a:visited, a:hover, a:active {
 		};
 		
 		function bindProgram(fragSrc) {
-			program = createProgram(gl, getShaderSource('vs'), fragSrc);
+			var vs = ''+
+				'#version 300 es\n'+
+				'precision highp float;'+
+				'precision highp int;'+
+				'uniform mat4 MVP;'+
+				'layout(location = 0) in vec2 position;'+
+				'layout(location = 4) in vec2 texcoord;'+
+				'out vec2 v_st;'+
+				'void main() {'+
+				'	v_st = texcoord;'+
+				'	gl_Position = MVP * vec4(position, 0.0, 1.0);'+
+				'}';
+
+			program = createProgram(gl, vs, fragSrc);
 
 			var mvpLocation = gl.getUniformLocation(program, 'MVP');
-			// var t0Location = gl.getUniformLocation(program, 't0');
-			// var t1Location = gl.getUniformLocation(program, 't1');
-			// var t2Location = gl.getUniformLocation(program, 't2');
 			layerLocation = gl.getUniformLocation(program, 'layer');
 			timerLocation = gl.getUniformLocation(program, 'u_timer');
 			deltatimerLocation = gl.getUniformLocation(program, 'u_delta_timer');
@@ -237,9 +223,6 @@ a:link, a:visited, a:hover, a:active {
 				0.0, 0.0, 0.0, 1.0
 			]);
 			gl.uniformMatrix4fv(mvpLocation, false, matrix);
-			// gl.uniform1i(t0Location, 0);
-			// gl.uniform1i(t1Location, 1);
-			// gl.uniform1i(t2Location, 2);
 		}
 
 		function initShaderProgramQuad(fragSrc) {
@@ -251,7 +234,7 @@ a:link, a:visited, a:hover, a:active {
 			var isWebGL2 = !!gl;
 			if (!isWebGL2) {
 				document.getElementById('info').innerHTML = 'WebGL 2 is not available.  See <a href="https://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">How to get a WebGL 2 implementation</a>';
-				let button = document.getElementById('btn');
+				var button = document.getElementById('btn');
 				button.value = 'Need WebGL 2 🥺';
 				button.disabled = true;
 				return;
@@ -306,113 +289,19 @@ a:link, a:visited, a:hover, a:active {
 			gl.vertexAttribPointer(vertexTexLocation, 2, gl.FLOAT, false, 0, 0);
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-			gl.bindVertexArray(null);
-			
-			/*
-			var texture0 = gl.createTexture();
-			//loadImage('gfx/tpolm_2d_array_test.png', function(image){
-
-			// use canvas to get the pixel data array of the image
-			var canvas = document.createElement('canvas');
-			canvas.width = IMAGE_SIZE_0.width;
-			canvas.height = IMAGE_SIZE_0.height * NUM_IMAGES_0;
-			var ctx = canvas.getContext('2d');
-			ctx.drawImage(textures[0], 0, 0);
-			var imageData = ctx.getImageData(0, 0, IMAGE_SIZE_0.width, IMAGE_SIZE_0.height * NUM_IMAGES_0);
-			var pixels0 = new Uint8Array(imageData.data.buffer);
-			
-			// -- Init Texture
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture0);
-			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texImage3D(
-				gl.TEXTURE_2D_ARRAY,
-				0,
-				gl.RGBA,
-				IMAGE_SIZE_0.width,
-				IMAGE_SIZE_0.height,
-				NUM_IMAGES_0,
-				0,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				pixels0
-			);
-			
-			
-			var texture1 = gl.createTexture();
-				
-			canvas = document.createElement('canvas');
-			canvas.width = IMAGE_SIZE_1.width;
-			canvas.height = IMAGE_SIZE_1.height * NUM_IMAGES_1;
-			ctx = canvas.getContext('2d');
-			ctx.drawImage(textures[1], 0, 0);
-			var imageData1 = ctx.getImageData(0, 0, IMAGE_SIZE_1.width, IMAGE_SIZE_1.height * NUM_IMAGES_1);
-			var pixels1 = new Uint8Array(imageData1.data.buffer);
-			
-			// -- Init Texture
-			gl.activeTexture(gl.TEXTURE1);
-			gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture1);
-			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texImage3D(
-				gl.TEXTURE_2D_ARRAY,
-				0,
-				gl.RGBA,
-				IMAGE_SIZE_1.width,
-				IMAGE_SIZE_1.height,
-				NUM_IMAGES_1,
-				0,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				pixels1
-			);
-			
-			
-			var texture2 = gl.createTexture();
-				
-			canvas = document.createElement('canvas');
-			canvas.width = IMAGE_SIZE_2.width;
-			canvas.height = IMAGE_SIZE_2.height * NUM_IMAGES_2;
-			ctx = canvas.getContext('2d');
-			ctx.drawImage(textures[2], 0, 0);
-			var imageData2 = ctx.getImageData(0, 0, IMAGE_SIZE_2.width, IMAGE_SIZE_2.height * NUM_IMAGES_2);
-			var pixels2 = new Uint8Array(imageData2.data.buffer);
-			
-			// -- Init Texture
-			gl.activeTexture(gl.TEXTURE2);
-			gl.bindTexture(gl.TEXTURE_2D_ARRAY, texture2);
-			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			gl.texImage3D(
-				gl.TEXTURE_2D_ARRAY,
-				0,
-				gl.RGBA,
-				IMAGE_SIZE_2.width,
-				IMAGE_SIZE_2.height,
-				NUM_IMAGES_2,
-				0,
-				gl.RGBA,
-				gl.UNSIGNED_BYTE,
-				pixels2
-			);
-			*/
-			
-			gl.bindVertexArray(vertexArray);
-			
 			return program;
 		}
         
 		function drawCanvas() {
 
-			let d = new Date();
-			let n = d.getTime();
-			let prevtime = n;
+			var d = new Date();
+			var n = d.getTime();
+			var prevtime = n;
 			
 			(loop = function() {
 				if (loop != undefined) {
 
-					let timer, layer;
+					var timer, layer;
 					if (skip == true) timer = skip_timer;
 					 else timer = ((new Date()).getTime()-init_time);
 					if (timer < playtime) {
@@ -422,7 +311,7 @@ a:link, a:visited, a:hover, a:active {
 					}
 					
 					if (sync_stuff == true) {
-						let dom = document.getElementById('timer');
+						var dom = document.getElementById('timer');
 						if (dom) {
 							dom.innerText = timer;
 							dom.style.backgroundColor = "black";
@@ -474,11 +363,11 @@ a:link, a:visited, a:hover, a:active {
 		}
 
 		function backToStartScreen() {
-			let dom = document.getElementById('starter_menu');
+			var dom = document.getElementById('starter_menu');
 			if (dom) {
 				dom.style.display = "block";
 			}
-			let dom2 = document.getElementById('btn');
+			var dom2 = document.getElementById('btn');
 			if (dom2) {
 				dom2.value = 'Start Demo!';
 				dom2.disabled = false;
@@ -512,7 +401,7 @@ a:link, a:visited, a:hover, a:active {
 				if (is_safari) request.open('GET', 'audio/15_mons_jacet_-_outro.m4a', true);
 					else request.open('GET', 'audio/15_mons_jacet_-_outro.ogg', true);
 				request.responseType = 'arraybuffer';
-				console.log('requesting');
+				//console.log('requesting');
 
 				// Decode asynchronously
 				request.onload = function() {
@@ -531,7 +420,7 @@ a:link, a:visited, a:hover, a:active {
 						analyser.getByteTimeDomainData(dataArray);
 						backgroundAudio.connect(analyser);
 
-						console.log('decoded');
+						//console.log('decoded');
 
 						cb();
 			  
