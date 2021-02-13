@@ -49,6 +49,16 @@
         return img;
     };
 
+    window.loadShader = function(url, onload) {
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", function(data) {
+            onload(data.target.response);
+        });
+        xhr.open("GET", url);
+        xhr.send();
+        return "/**/";
+    }
+
     window.loadImages = function(urls, onload) {
         var imgs = [];
         var imgsToLoad = urls.length;
