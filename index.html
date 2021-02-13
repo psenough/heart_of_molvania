@@ -28,7 +28,7 @@ a:link, a:visited, a:hover, a:active {
   color: gray;
 }
 #btn {
-  background-color: #4CAF50; /* Green */
+  background-color: #FF2E2B;
   border: none;
   color: white;
   padding: 15px 32px;
@@ -119,7 +119,7 @@ a:link, a:visited, a:hover, a:active {
     <script>
   
 		// debug vars
- 		let sync_stuff = true;
+ 		let sync_stuff = false;
  		let skip = false;
 		let skip_timer = 0;
 		
@@ -156,10 +156,10 @@ a:link, a:visited, a:hover, a:active {
 		}
 
 		document.body.onload = function() {
-			textures[0] = loadImage('gfx/metal_ox.png', function(ti){ console.log(ti); checkLoad(); });
-			textures[1] = loadImage('gfx/tpolm_2d_array_test.png', function(ti){ console.log(ti); checkLoad(); });
-			textures[2] = loadImage('gfx/pancake_1.png', function(ti){ console.log(ti); checkLoad(); });
-			shaders[0] = loadShader('frag.glsl', function(src){ shaders[0]=src; checkLoad(); })
+			//textures[0] = loadImage('gfx/metal_ox.png', function(ti){ console.log(ti); checkLoad(); });
+			//textures[1] = loadImage('gfx/tpolm_2d_array_test.png', function(ti){ console.log(ti); checkLoad(); });
+			//textures[2] = loadImage('gfx/pancake_1.png', function(ti){ console.log(ti); checkLoad(); });
+			shaders[0] = loadShader('frag.glsl', function(src){ shaders[0]=src; checkLoad(); });
 		}
 				
 		function start() {
@@ -195,6 +195,7 @@ a:link, a:visited, a:hover, a:active {
 		let layerLocation = undefined;
 		let timerLocation = undefined;
 		let deltatimerLocation = undefined;
+		let resolutionLocation = undefined;
 		
 		// https://www.peko-step.com/en/tool/combine-images.html
 		var NUM_IMAGES_0 = 6;
@@ -215,6 +216,32 @@ a:link, a:visited, a:hover, a:active {
 			height: 631
 		};
 		
+		function bindProgram(fragSrc) {
+			program = createProgram(gl, getShaderSource('vs'), fragSrc);
+
+			var mvpLocation = gl.getUniformLocation(program, 'MVP');
+			// var t0Location = gl.getUniformLocation(program, 't0');
+			// var t1Location = gl.getUniformLocation(program, 't1');
+			// var t2Location = gl.getUniformLocation(program, 't2');
+			layerLocation = gl.getUniformLocation(program, 'layer');
+			timerLocation = gl.getUniformLocation(program, 'u_timer');
+			deltatimerLocation = gl.getUniformLocation(program, 'u_delta_timer');
+			resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+
+			gl.useProgram(program);
+			
+			var matrix = new Float32Array([
+				1.0, 0.0, 0.0, 0.0,
+				0.0, 1.0, 0.0, 0.0,
+				0.0, 0.0, 1.0, 0.0,
+				0.0, 0.0, 0.0, 1.0
+			]);
+			gl.uniformMatrix4fv(mvpLocation, false, matrix);
+			// gl.uniform1i(t0Location, 0);
+			// gl.uniform1i(t1Location, 1);
+			// gl.uniform1i(t2Location, 2);
+		}
+
 		function initShaderProgramQuad(fragSrc) {
 			var canvas = document.getElementById('c');
 			canvas.height = window.innerHeight;
@@ -233,15 +260,7 @@ a:link, a:visited, a:hover, a:active {
 			resize();
 
 			// -- Init program
-			program = createProgram(gl, getShaderSource('vs'), fragSrc);
-
-			var mvpLocation = gl.getUniformLocation(program, 'MVP');
-			var t0Location = gl.getUniformLocation(program, 't0');
-			var t1Location = gl.getUniformLocation(program, 't1');
-			var t2Location = gl.getUniformLocation(program, 't2');
-			layerLocation = gl.getUniformLocation(program, 'layer');
-			timerLocation = gl.getUniformLocation(program, 'u_timer');
-			deltatimerLocation = gl.getUniformLocation(program, 'u_delta_timer');
+			bindProgram(fragSrc);
 
 
 			// -- Init buffers
@@ -289,7 +308,7 @@ a:link, a:visited, a:hover, a:active {
 
 			gl.bindVertexArray(null);
 			
-			
+			/*
 			var texture0 = gl.createTexture();
 			//loadImage('gfx/tpolm_2d_array_test.png', function(image){
 
@@ -377,22 +396,10 @@ a:link, a:visited, a:hover, a:active {
 				gl.UNSIGNED_BYTE,
 				pixels2
 			);
+			*/
 			
-			
-			gl.useProgram(program);
 			gl.bindVertexArray(vertexArray);
 			
-			var matrix = new Float32Array([
-				1.0, 0.0, 0.0, 0.0,
-				0.0, 1.0, 0.0, 0.0,
-				0.0, 0.0, 1.0, 0.0,
-				0.0, 0.0, 0.0, 1.0
-			]);
-			gl.uniformMatrix4fv(mvpLocation, false, matrix);
-			gl.uniform1i(t0Location, 0);
-			gl.uniform1i(t1Location, 1);
-			gl.uniform1i(t2Location, 2);
-
 			return program;
 		}
         
@@ -416,7 +423,11 @@ a:link, a:visited, a:hover, a:active {
 					
 					if (sync_stuff == true) {
 						let dom = document.getElementById('timer');
-						if (dom) dom.innerText = timer;
+						if (dom) {
+							dom.innerText = timer;
+							dom.style.backgroundColor = "black";
+							dom.style.padding = '10px';
+						}
 						//console.log(timer);
 					}
 					
@@ -429,6 +440,7 @@ a:link, a:visited, a:hover, a:active {
 					gl.uniform1i(layerLocation, layer);
 					gl.uniform1f(timerLocation, timer);
 					gl.uniform1f(deltatimerLocation, timer - prevtime);
+					gl.uniform2f(resolutionLocation, window.innerWidth, window.innerHeight);
 					
 					gl.drawArrays(gl.TRIANGLES, 0, 6);
 				
@@ -444,7 +456,7 @@ a:link, a:visited, a:hover, a:active {
 							//dom.addClass('fadein');
 							showing_bullgif = true;
 						}
-					} else if (timer > 130000) {
+					} else if (timer > 106000/*130000*/) {
 						if (showing_bullgif == true) 
 						{
 							var dom = document.getElementById('recipe1');
@@ -486,14 +498,15 @@ a:link, a:visited, a:hover, a:active {
 		var analyser;
 		var bufferLength;
 		var dataArray;
+		var audioContext;
 						
 		function initAudio( cb ) {
-			var context;
+			
 			try {
 				// Fix up for prefixing
 				window.AudioContext = window.AudioContext||window.webkitAudioContext;
 				if (backgroundAudio != undefined) backgroundAudio.stop();
-				context = new AudioContext();
+				audioContext = new AudioContext();
 
 				var request = new XMLHttpRequest();	
 				if (is_safari) request.open('GET', 'audio/15_mons_jacet_-_outro.m4a', true);
@@ -503,15 +516,15 @@ a:link, a:visited, a:hover, a:active {
 
 				// Decode asynchronously
 				request.onload = function() {
-					context.decodeAudioData(request.response, function(buffer) {
+					audioContext.decodeAudioData(request.response, function(buffer) {
 			  
-						backgroundAudio = context.createBufferSource(); 	// creates a sound source
+						backgroundAudio = audioContext.createBufferSource(); 	// creates a sound source
 						backgroundAudio.buffer = buffer;                    // tell the source which sound to play
-						backgroundAudio.connect(context.destination);       // connect the source to the context's destination (the speakers)
+						backgroundAudio.connect(audioContext.destination);       // connect the source to the context's destination (the speakers)
 						backgroundAudio.loop = false;
 						//backgroundAudio.start(0);
 						
-						analyser = context.createAnalyser();
+						analyser = audioContext.createAnalyser();
 						analyser.fftSize = 512;
 						bufferLength = analyser.frequencyBinCount;
 						dataArray = new Uint8Array(bufferLength);
@@ -542,7 +555,7 @@ a:link, a:visited, a:hover, a:active {
 			var keyCode = e.keyCode;
 			console.log(keyCode);
 
-			switch(keyCode) {
+			switch (keyCode) {
 				case 32: // space
 					//init_time = (new Date()).getTime();
 					if (skip == false) {
@@ -554,6 +567,12 @@ a:link, a:visited, a:hover, a:active {
 								backgroundAudio.start(0, skip_timer/1000);
 							});
 					}
+				break;
+
+				case 82: // r - reload shader
+					loadShader('frag.glsl', function(fragSrc){ 
+						bindProgram(fragSrc);
+					});
 				break;
 			}
 
